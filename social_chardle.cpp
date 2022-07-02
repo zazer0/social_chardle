@@ -29,8 +29,7 @@ char choose_mode(void) {
     scanf(" %c", &mode);
 
     while (mode != MODE_PLAY && mode != MODE_CONNECT) {
-        printf("Invalid - you can either play (p) or connect (c) to a \
-                player!\n");
+        printf("Invalid - you can either play (p) or connect (c) to a player!\n");
         printf("Would you like to play or connect?\n(p/c): ");
         scanf(" %c", &mode);
     }
@@ -68,13 +67,6 @@ char listen_for_letter(void) {
     }
     if (i == wait_time) {
         printf("Error :: Timed out!\n");
-        return SERVER_ERROR;
-    }
-
-    /// If unable to accept connection, return error
-    bool accepted = accept_all_new_connections();
-    if (!(accepted)) {
-        printf("Error :: Connection not accepted!\n");
         return SERVER_ERROR;
     }
 
