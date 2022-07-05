@@ -10,6 +10,8 @@
 #include "splashkit.h"
 // POSIX library, used to allow server to wait for a connection
 #include <unistd.h>
+// C++ Input/Output Library, used to print lines!
+#include <iostream>
 
 #define MAX_ROUNDS 10
 #define SCREEN_HEIGHT 10
@@ -25,19 +27,19 @@ void print_welcome(void);
 char choose_mode(void) {
 
     char mode = ' ';
-    printf("Would you like to play or connect? ");
+    std::cout << "Would you like to play or connect? ";
     scanf(" %c", &mode);
 
     while (mode != MODE_PLAY && mode != MODE_CONNECT) {
-        printf("Invalid - you can either play (p) or connect (c) to a player!\n");
-        printf("Would you like to play or connect?\n(p/c): ");
+        std::cout << "Invalid - you can either play (p) or connect (c) to a player!\n";
+        std::cout << "Would you like to play or connect?\n(p/c): ";
         scanf(" %c", &mode);
     }
 
     if (mode == MODE_PLAY) {
-        printf("Hosting game server!\n");
+        std::cout << "Hosting game server!\n";
     } else if (mode == MODE_CONNECT) {
-        printf("Connecting to a player!\n");
+        std::cout << "Connecting to a player!\n";
     }
 
     return mode;
@@ -52,9 +54,9 @@ char listen_for_letter(void) {
     const string server_name = "server";
     unsigned short sock_port = 1511;
 
-    printf("Starting server... ");
+    std::cout << "Starting server... ";
     server_socket server = create_server(server_name, sock_port);
-    printf("Server started!\n");
+    std::cout << "Server started!\n";
 
     // Checks for new connection
     int i = 0, wait_time = 30;
@@ -66,7 +68,7 @@ char listen_for_letter(void) {
         sleep(1);
     }
     if (i == wait_time) {
-        printf("Error :: Timed out!\n");
+        std::cout << "Error :: Timed out!\n";
         return SERVER_ERROR;
     }
 
@@ -81,7 +83,7 @@ char listen_for_letter(void) {
     char letter = (char) ascii_value;
 
     close_server(server);
-    printf("Server closed.\n");
+    std::cout << "Server closed.\n";
 
     /// 4) Play game
     return letter;
@@ -94,14 +96,14 @@ void transmit_letter(char input_letter) {
     const string sock_name = "sock";
     unsigned short sock_port = 1511;
 
-    printf("Connecting to server... ");
+    std::cout << "Connecting to server... ";
     connection sock_con = open_connection(sock_name, my_ip(), sock_port, TCP);
-    printf("Connected to server!\n");
+    std::cout << "Connected to server!\n";
 
     const string message = std::to_string(input_letter);
     // printf("sending %s:\n", message.c_str());
 
-    printf("Sending letter...\n");
+    std::cout << "Sending letter...\n";
     bool message_sent = send_message_to(message, sock_con);
 
     // Verifies character was transmitted correctly
@@ -109,9 +111,9 @@ void transmit_letter(char input_letter) {
     // printf("Send status: %d\n", sent);
 
     if (sent == 0) {
-        printf("Error :: Message not transmitted!\n");
+        std::cout << "Error :: Message not transmitted!\n";
     } else {
-        printf("Sent successfully!\n");
+        std::cout << "Sent successfully!\n";
     }
 
     return;
@@ -134,13 +136,13 @@ int main(void) {
 
     } else if (mode == MODE_CONNECT) {
         // Scans in character for receiving player to guess, then returns
-        printf("What letter will the player guess? ");
+        std::cout << "What letter will the player guess? ";
         scanf(" %c", &correct_letter);
         transmit_letter(correct_letter);
         return 0;
 
     } else {
-        printf("Invalid mode!\n");
+        std::cout << "Invalid mode!\n";
         return 1;
     }
 
@@ -149,13 +151,16 @@ int main(void) {
     ///////////////////////////////////////////////////////////////////////
 
     if ('a' <= correct_letter && correct_letter <= 'z') {
-        printf("The answer is '%c' (ascii %d).\n",
-                correct_letter, correct_letter);
+        string answer_string = "The answer is '"; 
+        answer_string += std::atoi(correct_letter) + "'(ascii ";
+        answer_string += std::to_string(correct_letter) + ").\n";
+
+        std::cout << answer_string; 
 
         // Stage 3: Part 4: SCREEN_HEIGHT
         int i = 0;
         while (i < SCREEN_HEIGHT) {
-            printf("*\n");
+            std::cout << "*\n";
             i++;
         }
 
@@ -168,11 +173,11 @@ int main(void) {
         // Stage 3: Part 4: SCREEN_HEIGHT
         int i = 0;
         while (i < SCREEN_HEIGHT) {
-            printf("*\n");
+            std::cout << "*\n";
             i++;
         }
     } else {
-        printf("The answer must be a valid letter!\n");
+        std::cout << "The answer must be a valid letter!\n";
         return 1;
     }
 
@@ -183,21 +188,24 @@ int main(void) {
 
     while (guess_number <= MAX_ROUNDS && !is_correct) {
         char guess_letter;
-        printf("What is guess #%d? ", guess_number);
+        std::string guess_prompt = "What is guess #";
+        guess_prompt += std::to_string(guess_number) + "? ";
+        //printf("What is guess #%d? ", guess_number);
+        std::cout << guess_prompt;
         scanf(" %c", &guess_letter);
 
         // Stage 3, Part 3: Dealing with Uppercase Letters
         guess_letter = tolower(guess_letter);
 
         if ('a' > guess_letter || guess_letter > 'z' ) {
-            printf("Your guess must be a valid letter!\n");
+            std::cout << "Your guess must be a valid letter!\n";
         } else if (guess_letter == correct_letter) {
-            printf("Congratulations! You got the letter right!\n");
+            std::cout << "Congratulations! You got the letter right!\n";
             is_correct = 1;
         } else if (guess_letter < correct_letter) {
-            printf("Not quite! Guess later in the alphabet.\n");
+            std::cout << "Not quite! Guess later in the alphabet.\n";
         } else {
-            printf("Not quite! Guess earlier in the alphabet.\n");
+            std::cout << "Not quite! Guess earlier in the alphabet.\n";
         }
 
         guess_number += 1;
@@ -209,8 +217,8 @@ int main(void) {
 }
 
 void print_welcome(void) {
-    printf("[COMP1511 Guessing Game: CS Chardle]\n\n");
-    printf("Welcome to the COMP1511 guessing game.\n");
-    printf("You will need to input a letter to guess,\n");
-    printf("Then let the player see the screen, and make guesses.\n");
+    std::cout << "[COMP1511 Guessing Game: CS Chardle]\n\n";
+    std::cout << "Welcome to the COMP1511 guessing game.\n";
+    std::cout << "You will need to input a letter to guess,\n";
+    std::cout << "Then let the player see the screen, and make guesses.\n";
 }
