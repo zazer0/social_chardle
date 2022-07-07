@@ -149,8 +149,8 @@ int main(void) {
     ///////////////////////////////////////////////////////////////////////
 
     if ('a' <= correct_letter && correct_letter <= 'z') {
-        printf("The answer is '%c' (ascii %d).\n",
-                correct_letter, correct_letter);
+        /*printf("The answer is '%c' (ascii %d).\n",
+                correct_letter, correct_letter);*/
 
         // Stage 3: Part 4: SCREEN_HEIGHT
         int i = 0;
